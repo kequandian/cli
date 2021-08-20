@@ -1,0 +1,7 @@
+node_modules/
+*DEPLOY-SNAPSHOT.tar
+.idea/
+.classpath
+.factorypath
+.project
+.settings/

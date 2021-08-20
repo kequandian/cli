@@ -1,0 +1,115 @@
+#!/bin/bash
+
+opt=$1
+target=$1
+server_port=$2
+if [ ! $server_port ];then
+   server_port=$1
+fi
+
+
+usage() {
+	cat <<- EOF
+	
+	Usage: standalone [TARGET] [OPTIONS]
+     
+   OPTIONS:
+      -h               -- print usage
+      --server-port    -- change server port other then 8080
+   TARGET:  default to 'standalone'
+      .         -- ignore config
+      -         -- force rebuild: mvn clean
+      name      -- no target, default to standalone
+   e.g.
+      standalone -h 
+      standalone  
+      standalone -
+      standalone .
+      standalone --server.port=8081
+      standalone test 
+	EOF
+	exit
+}
+if [[ $opt == '-h' ]];then
+  usage
+fi
+if [[ $opt == '-' ]];then
+  mvn clean
+fi
+
+check_target=$(echo $target | grep '\-')
+if [ $check_target ]; then
+   target=standalone
+fi
+
+check_server_port=$(echo $server_port | grep '\-\-server.port=')
+if [ $check_server_port ]; then
+   server_port=$server_port
+else
+   server_port='--server.port=8080'
+fi
+
+
+
+readlink_fix=()
+if [[ $(uname) == 'Darwin' ]]; then
+   #dir=$(greadlink -f "$0")
+   readlink_fix=greadlink
+else
+   #dir=$(readlink -f "$0")
+   readlink_fix=readlink
+fi
+
+### start ###
+dir=$($readlink_fix -f "$0")
+dir=$(dirname $dir)
+
+## check in target dir
+targetdir=$(basename $PWD)
+if [ $targetdir = 'target' ];then
+   cd ..
+fi
+
+if [ ! -e ./pom.xml ];then
+   cp -r $dir/pom_template.xml ./pom.xml
+fi
+
+if [ ! -d target ];then
+   mvn clean -DskipStandalone=false package
+fi
+
+if [[ $target == '.' ]];then
+   target=$target
+else
+   if [ ! -e config ];then
+      mkdir config
+   fi
+   if [ ! -e ./config/application.yml ]; then
+      cp $dir/standalone.yml ./config/application.yml
+   fi
+
+   ## mkdir config outside target
+   if [ -e target/config ];then
+      rm -rf target/config
+   fi
+   if [ ! -e target/config ]; then
+      mkdir target/config
+   fi
+   if [ ! $target ];then
+      target=standalone
+   fi
+   echo "cp config/application.yml target/config/application-$target.yml"
+   cp ./config/application.yml target/config/application-$target.yml
+fi
+
+cd target
+standalone=$(ls *-standalone.jar)
+if [ ! $standalone ];then
+   cd ..
+   mvn clean -DskipStandalone=false package
+   cd target
+   standalone=$(ls *-standalone.jar)
+fi
+
+echo "java -jar $standalone --spring.profiles.active=$target $server_port"
+java -jar $standalone --spring.profiles.active=$target $server_port
