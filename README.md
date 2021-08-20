@@ -7,6 +7,8 @@ $ cd dev-cli
 $ npm i -g
 ```
 
+[TOOLS](https://github.com/kequandian/tools)
+
 ### current cli
 - remote
 > Used to handle multi git repo in current dir
