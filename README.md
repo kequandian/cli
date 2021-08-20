@@ -1,116 +1,13 @@
 ## dev cli
+> Install all the cli tools globally
 Some tiny script tools in cli maner, install all the tools as below line
-```shell
+```sh
+$ git clone https://github.com/kequandian/dev-cli
+$ cd dev-cli
 $ npm i -g
 ```
 
 ### current cli
-- db-crudless-yaml
->Used to convert database structrue into yaml(crudless format) report
-
->Tips：[Python](https://www.python.org/downloads/release/python-385/) must be installed first
-
-0. switch to this directory
-
-```bash
-$ cd dev-cli
-```
-
-1. install **pymysql**
-
-```shell
-$ pip3 install pymysql
-```
-
-2. install **pyyaml**
-
-```shell
-$ pip3 install pyyaml
-```
-
-3. view script help
-
-```shell
-$ python dbToCrudless.py --help
-dbToCrudless.py -d <database> -t <table> -s <savepath>
-```
-
-4. execute script
-
->If **DON'T** add the '-s --savepath' option, it will be **output to the command line** by default.
-
-```shell
-$ python dbToCrudless.py -d test -t user -s d:\\desktop\\crudless.yaml
-```
-
-- db-excel
->Used to convert database structrue into Excel report
-
->Tips：[Python](https://www.python.org/downloads/release/python-385/) must be installed first
-
-0. switch to this directory
-
-```bash
-$ cd dev-cli
-```
-
-1. install **pymysql**
-
-```shell
-$ pip3 install pymysql
-```
-
-2. install **openpyxl**
-
-```shell
-$ pip3 install openpyxl
-```
-
-3. edit database information
-
-```shell
-$ vim dicToExcel.py
-......
-initial_info = {
-	'host':'120.78.88.12',
-	'port':3306,
-	'username':'root',
-	'password':'root',
-	'database':'test',
-	'charset' :'utf8',
-	'savepath':'D:\\Desktop\\am.xlsx',
-	'table_head':('字段名','数据类型','备注')
-}
-......
-```
-
-4. execute script
-
-```shell
-$ python dicToExcel.py
-```
-
-- deployless  
-> used to deploy local target/maven-build-jar.jar
-
-- dependency
-> used to check the dependencies between two jars or two mvn projects 
-```shell
-$ dependency
-
-Usage: dependency Options [Variables...]
-e.g. dependency -p ./lib/test.jar
-用于Jar包依赖输出 和 Maven module / Jar包依赖对比
-
-Options:
-  -c, --compare </path/to/module1> </path/to/module2> 对比两个Maven module OR Jar依赖包情况
-    -> -b --boolean 判断module1 / jar1 是否能够装配入 module2 / jar2中    
-  -d  --download 根据参数groupId:artifactId:Version下载依赖文件到当前目录
-  -j, --JSON 输出为JSON格式
-  -p, --parse </path/to/the-app.jar> [...]  解析Jar包依赖并输出
-  -v, --version  输出当前工具版本信息
-```
-
 - remote
 > Used to handle multi git repo in current dir
 ```shell
@@ -133,8 +30,24 @@ Usage:
 > first change path into the mvn project and type 'standalone'
 
 ```shell
-# 使用init参数则运行SQL文件进行初始化
-$ standalone init
+$ standalone -h
+
+Usage: standalone [TARGET] [OPTIONS]
+
+   OPTIONS:
+      -h               -- print usage
+      --server-port    -- change server port other then 8080
+   TARGET:  default to 'standalone'
+      .         -- ignore config
+      -         -- force rebuild: mvn clean
+      name      -- no target, default to standalone
+   e.g.
+      standalone -h
+      standalone
+      standalone -
+      standalone .
+      standalone --server.port=8081
+      standalone test
 ```
 
 - pdf-page 
@@ -165,12 +78,9 @@ OPTIONS:
              pdf-page <source> -n <page-number>
 ```
 
-## Install all the cli tools globally
-```sh
-$ git clone https://github.com/kequandian/dev-cli
-$ cd dev-cli
-$ npm i -g
-```
+- db-excel
+> Used to convert database structrue into Excel report
+
 
 ## Some tips
 
