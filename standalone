@@ -75,7 +75,7 @@ if [ ! -e ./pom.xml ];then
 fi
 
 if [ ! -d target ];then
-   mvn clean -DskipStandalone=false package
+   mvn -DskipTests clean -DskipStandalone=false package
 fi
 
 if [[ $target == '.' ]];then
