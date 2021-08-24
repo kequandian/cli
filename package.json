@@ -13,8 +13,8 @@
         "remote": "./remote",
         "standalone": "./standalone",
         "pdf-page": "./pdf-page.sh",
-        "db-excel": "./dicToExcel.py",
-        "db-crudless": "./dbToCrudless.py",
+        "dicToExcel": "./dicToExcel.sh",
+        "dbToCrudless": "./dbToCrudless.py",
         "db-diff": "./db-diff.sh"
     }
 }
