@@ -5,3 +5,4 @@ node_modules/
 .factorypath
 .project
 .settings/
+out/
