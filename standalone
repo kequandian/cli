@@ -16,7 +16,7 @@ usage() {
    OPTIONS:
       -h               -- print usage
       --server-port    -- change server port other then 8080
-   TARGET:  default to 'standalone'
+   TARGET:  spring.profiles.active=?, default to 'standalone'
       .         -- ignore config
       -         -- force rebuild: mvn clean
       name      -- no target, default to standalone
@@ -74,17 +74,24 @@ if [ ! -e ./pom.xml ];then
    cp -r $dir/pom_template.xml ./pom.xml
 fi
 
-if [ ! -d target ];then
-   mvn -DskipTests clean -DskipStandalone=false package
+standalone=$(ls *-standalone.jar app.jar 2> /dev/null)
+
+## no standalone, build
+if [ ! $standalone ];then
+   if [ ! -d target ];then
+      echo "1> mvn -DskipTests clean -DskipStandalone=false package"
+      mvn -DskipTests clean -DskipStandalone=false package
+   fi
 fi
 
+### skip config/application.yml
 if [[ $target == '.' ]];then
    target=$target
 else
    if [ ! -e config ];then
       mkdir config
    fi
-   if [ ! -e ./config/application.yml ]; then
+   if [ ! -f ./config/application.yml ]; then
       cp $dir/standalone.yml ./config/application.yml
    fi
 
@@ -92,24 +99,55 @@ else
    if [ -e target/config ];then
       rm -rf target/config
    fi
-   if [ ! -e target/config ]; then
-      mkdir target/config
+
+   ## just when no standalone...
+   if [ ! $standalone ];then
+      if [ ! -e target/config ]; then
+         mkdir target/config
+      fi
    fi
+
    if [ ! $target ];then
       target=standalone
    fi
-   echo "cp config/application.yml target/config/application-$target.yml"
-   cp ./config/application.yml target/config/application-$target.yml
+
+   if [ -e target/config ];then
+      echo "cp config/application.yml target/config/application-$target.yml"
+      cp ./config/application.yml target/config/application-$target.yml
+   fi
 fi
 
-cd target
-standalone=$(ls *-standalone.jar)
-if [ ! $standalone ];then
-   cd ..
-   mvn clean -DskipStandalone=false package
-   cd target
-   standalone=$(ls *-standalone.jar)
-fi
+### run directly
+standalone=$(ls *-standalone.jar app.jar 2> /dev/null)
+if [ $standalone ];then
+   echo "java -jar $standalone --spring.profiles.active=$target $server_port"
+   java -jar $standalone --spring.profiles.active=$target $server_port
 
-echo "java -jar $standalone --spring.profiles.active=$target $server_port"
-java -jar $standalone --spring.profiles.active=$target $server_port
+else
+
+   ### root area
+   standalone=$(ls target/*-standalone.jar target/app.jar 2> /dev/null)
+   if [ ! $standalone ];then
+      if [ -f pom.xml ];then
+         echo "2> mvn clean -DskipStandalone=false package"
+         mvn clean -DskipStandalone=false package
+         standalone=$(ls target/*-standalone.jar target/app.jar 2> /dev/null)
+
+         if [ $standalone ];then
+            cd target
+         else
+            echo 'fail to build -standalone.jar => mvn clean package'
+            exit
+         fi
+      fi
+   fi
+
+   standalone=$(ls *-standalone.jar app.jar 2> /dev/null)
+   if [ ! $standalone ];then
+      echo "no standalone jar exists !"
+   else
+      echo "java -jar $standalone --spring.profiles.active=$target $server_port"
+      java -jar $standalone --spring.profiles.active=$target $server_port
+   fi
+   
+fi
