@@ -140,6 +140,8 @@ else
             exit
          fi
       fi
+   else
+      cd target
    fi
 
    standalone=$(ls *-standalone.jar app.jar 2> /dev/null)
