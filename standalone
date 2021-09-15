@@ -93,6 +93,7 @@ else
    fi
    if [ ! -f ./config/application.yml ]; then
       cp $dir/standalone.yml ./config/application.yml
+      cp $dir/standalone.yml ./config/application-dev.yml
    fi
 
    ## mkdir config outside target
